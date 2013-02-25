@@ -3,6 +3,10 @@ layout: post
 title: "Edge-distance anti-aliasing"
 date: 2013-02-24
 comments: false
+tags:
+ - Igalia
+ - WebKit
+ - Gnome
 ---
 
 (You might want to go [straight to the demo]({{ site.url }}/edge-distance-anti-aliasing/demo.html))
