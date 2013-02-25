@@ -4,25 +4,25 @@ layout: nil
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
  
-  <title>abandonedwig.info</title>
-  <link href="http://abandonedwig.info"/>
-  <link type="application/atom+xml" rel="self" href="http://abandonedwig.info/blog/atom.xml"/>
+  <title>{{ site.title }}</title>
+  <link href="{{ site.url }}"/>
+  <link type="application/atom+xml" rel="self" href="{{site.url}}/blog/atom.xml"/>
   <updated>{{ site.time | date_to_xmlschema }}</updated>
-  <id>http://abandonedwig.info/</id>
+  <id>{{ site.url }}</id>
   <author>
-    <name>Martin Robinson</name>
-    <email>martin.james.robinson@gmail.com</email>
+    <name>{{ site.author }}</name>
+    <email>{{ site.email }}</email>
   </author>
 
   {% for post in site.posts %}
   <entry>
-    <id>http://abandonedwig.info{{ post.id }}</id>
+    <id>{{ site.url }}{{ post.id }}</id>
     <link type="text/html" rel="alternate" href="http://abandonedwig.info/blog{{ post.url }}"/>
     <title>{{ post.title | xml_escape }}</title>
     <updated>{{ post.date | date_to_xmlschema }}</updated>
     <author>
-      <name>Martin Robinson</name>
-      <uri>http://abandonedwig.info/</uri>
+      <name>{{ site.author }}</name>
+      <uri>{{ site.url }}/blog{{ post.url }}</uri>
     </author>
     <content type="html">{{ post.content | xml_escape }}</content>
   </entry>
