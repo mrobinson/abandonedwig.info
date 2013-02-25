@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Edge-distance anti-aliasing"
-date: 2012-08-14
+date: 2013-02-28
 comments: false
 ---
 
