@@ -5,7 +5,7 @@ date: 2012-08-14
 comments: false
 ---
 
-(You might want to go [straight to the demo](/edge-distance-anti-aliasing/demo.html))
+(You might want to go [straight to the demo]({{ site.url }}/edge-distance-anti-aliasing/demo.html))
 
 Some months ago, I noticed that the [Chromium
 compositor](http://src.chromium.org/viewvc/chrome/trunk/src/cc/), the code
@@ -27,7 +27,7 @@ aligned to pixel boundaries can move to a space between pixel boundaries.
 For instance, let's zoom into the edge of triangle that we are rendering. Maybe in this
 case it's half of a rotated div.
 
-![A polygon without anti-aliasing](/edge-distance-anti-aliasing/no-antialiasing-final.png "A polygon without anti-aliasing")
+![A polygon without anti-aliasing]({{site.url}}/edge-distance-anti-aliasing/no-antialiasing-final.png "A polygon without anti-aliasing")
 
 If we naively decided the color of every pixel based on whether any of the triangle
 covered it at all, we'd end up with a jagged edge.
@@ -38,7 +38,7 @@ value) by that percentage when painting the pixel. This process is called
 <i>anti-aliasing</i> and the percentage that the triangle covers the pixel is called
 <i>coverage</i>.
 
-![A polygon with anti-aliasing](/edge-distance-anti-aliasing/antialiasing-final.png "A polygon with anti-aliasing")
+![A polygon with anti-aliasing]({{site.url}}/edge-distance-anti-aliasing/antialiasing-final.png "A polygon with anti-aliasing")
 
 Think of all the complicated geometric calculations we'd have to do to figure out the
 ratio exactly. Since we have to make these calculations for every pixel up to 60 times per
@@ -64,16 +64,16 @@ this is to just make the triangle a little bit bigger. In fact, we can expand al
 edges by less than pixel's distance and OpenGL will paint all those missing pixels. Now we
 have smooth edges!
 
-![Expanding the drawing area](/edge-distance-anti-aliasing/antialiasing-final-expanded.png "Expanding the drawing area")
+![Expanding the drawing area]({{site.url}}/edge-distance-anti-aliasing/antialiasing-final-expanded.png "Expanding the drawing area")
 
 I spent some time implementing this for the TextureMapper accelerated
 compositor (and thus WebKitGTK+), so it's not just the Chromium compositor that
 has this feature any longer.  For me it makes a huge difference in the quality
 of 3D CSS content. For the purposes of demonstration, I've also reimplemented
 it in WebGL, so if you have a modern browser you can [see it in
-action](/edge-distance-anti-aliasing/demo.html).
+action]({{site.url}}/edge-distance-anti-aliasing/demo.html).
 
-<a href="/edge-distance-anti-aliasing/demo.html"><img alt="A screenshot of the edge-distance anti-aliasing demo" src="/edge-distance-anti-aliasing/demo.png"/></a>
+<a href="{{site.url}}/edge-distance-anti-aliasing/demo.html"><img alt="A screenshot of the edge-distance anti-aliasing demo" src="{{site.url}}/edge-distance-anti-aliasing/demo.png"/></a>
 
 <ol class="footnotes">
     <li><a name="fn1"/> Fragments and pixels are actually different things, but I'm glossing over this difference for the sake of simplicity.</li>
