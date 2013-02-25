@@ -18,7 +18,7 @@ layout: nil
         <title>{{ post.title }}</title>
         <link>{{ site.url }}/blog{{ post.url }}</link>
         <pubDate>{{ post.date | date: "%a, %d %b %Y %H:%M:%S %Z" }}</pubDate>
-        <author>{{ site.email }}</author>
+        <name>{{ site.author }} ({{ site.author }})</name>
         <guid>{{ site.url }}{{ post.url }}</guid>
         <description>{{ post.content | xml_escape }}</description>
       </item>
