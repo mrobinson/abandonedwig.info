@@ -1,0 +1,438 @@
+<html>
+  <!--
+     Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies)
+     Copyright (C) 2012 Igalia S.L.
+     Copyright (C) 2011 Google Inc. All rights reserved.
+     Copyright (C) 2012 Martin Robinson
+
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Library General Public
+     License as published by the Free Software Foundation; either
+     version 2 of the License, or (at your option) any later version.
+
+     This library is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     Library General Public License for more details.
+
+     You should have received a copy of the GNU Library General Public License
+     along with this library; see the file COPYING.LIB.  If not, write to
+     the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+     Boston, MA 02110-1301, USA.
+   -->
+  <head>
+    <title>Edge-distance anti-aliasing</title>
+
+    <script type="text/javascript" src="webkit-utility-classes.js"></script>
+
+    <script id="simple-fragment-shader" type="x-shader/x-fragment">
+        precision mediump float;
+
+        void main(void) {
+            gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        }
+    </script>
+
+    <script id="simple-vertex-shader" type="x-shader/x-vertex">
+        attribute vec3 a_vertex;
+        uniform mat4 u_matrix;
+        void main(void) {
+            gl_Position = u_matrix * vec4(a_vertex, 1.0);
+        }
+    </script>
+
+    <script id="red-fragment-shader" type="x-shader/x-fragment">
+        precision mediump float;
+        uniform vec3 u_color;
+
+        void main(void) {
+            gl_FragColor = vec4(u_color, 1.0);
+        }
+    </script>
+
+    <script id="aa-fragment-shader" type="x-shader/x-fragment">
+        precision mediump float;
+        uniform vec3 u_color;
+        uniform vec3 u_expandedQuadEdgesInScreenSpace[8];
+
+        void main()
+        {
+            // The data passed in u_expandedQuadEdgesInScreenSpace is merely the
+            // pre-scaled coeffecients of the line equations describing the four edges
+            // of the expanded quad in screen space and the rectangular bounding box
+            // of the expanded quad.
+            //
+            // We are doing a simple distance calculation here according to the formula:
+            // (A*p.x + B*p.y + C) / sqrt(A^2 + B^2) = distance from line to p
+            // Note that A, B and C have already been scaled by 1 / sqrt(A^2 + B^2).
+            vec3 pos = vec3(gl_FragCoord.xy, 1);
+            float a0 = clamp(dot(u_expandedQuadEdgesInScreenSpace[0], pos), 0.0, 1.0);
+            float a1 = clamp(dot(u_expandedQuadEdgesInScreenSpace[1], pos), 0.0, 1.0);
+            float a2 = clamp(dot(u_expandedQuadEdgesInScreenSpace[2], pos), 0.0, 1.0);
+            float a3 = clamp(dot(u_expandedQuadEdgesInScreenSpace[3], pos), 0.0, 1.0);
+            float a4 = clamp(dot(u_expandedQuadEdgesInScreenSpace[4], pos), 0.0, 1.0);
+            float a5 = clamp(dot(u_expandedQuadEdgesInScreenSpace[5], pos), 0.0, 1.0);
+            float a6 = clamp(dot(u_expandedQuadEdgesInScreenSpace[6], pos), 0.0, 1.0);
+            float a7 = clamp(dot(u_expandedQuadEdgesInScreenSpace[7], pos), 0.0, 1.0);
+
+            // Now we want to reduce the alpha value of the fragment if it is close to the
+            // edges of the expanded quad (or rectangular bounding box -- which seems to be
+            // important for backfacing quads). Note that we are combining the contribution
+            // from the (top || bottom) and (left || right) edge by simply multiplying. This follows
+            // the approach described at: http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter22.html,
+            // in this case without using Gaussian weights.
+            gl_FragColor = vec4(u_color, 1.0) * min(min(a0, a2) * min(a1, a3), min(a4, a6) * min(a5, a7));
+        }
+    </script>
+
+    <script>
+        function getShaderSource(id) {
+            var shaderSource = "";
+            var node = document.getElementById(id).firstChild;
+            while (node) {
+                if (node.nodeType == 3)
+                    shaderSource += node.textContent;
+                    node = node.nextSibling;
+                }
+            return shaderSource;
+        }
+    </script>
+
+    <script type="text/javascript">
+    function DrawQuad(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+
+        this._lastAnimationUpdate = 0;
+        this._rotationAngle = 0;
+        this._rotationTime = 0;
+
+        this.setRotationAnimation = function(axis, fullRotationTime) {
+            this._rotationTime = fullRotationTime;
+            this._rotationAxis = axis;
+        }
+
+        this.updateAnimation = function(newTime) {
+            if (this._lastAnimationUpdate === 0)
+                this._lastAnimationUpdate = newTime;
+
+            var difference = newTime - this._lastAnimationUpdate;
+            this._lastAnimationUpdate = newTime;
+
+            if (this._rotationTime) {
+                this._rotationAngle = this._rotationAngle + (difference / this._rotationTime) * (Math.PI * 2)
+                this._rotationAngle = this._rotationAngle % (2 * Math.PI)
+            }
+
+            this.currentTransform = this._calculateTransform()
+        }
+
+        this._calculateTransform = function() {
+            var center = [this.x + (this.width / 2.0), this.y + (this.height / 2.0)]
+            var matrix = new TransformationMatrix()
+
+            matrix.translate(center[0], center[1])
+            matrix.rotate(this._rotationAxis, this._rotationAngle)
+            matrix.translate(-center[0], -center[1])
+            return matrix;
+        }
+    }
+
+    function extend(subClass, baseClass) {
+       function inheritance() {}
+       inheritance.prototype = baseClass.prototype;
+
+       subClass.prototype = new inheritance();
+       subClass.prototype.constructor = subClass;
+       subClass.baseConstructor = baseClass;
+       subClass.superClass = baseClass.prototype;
+    }
+
+    function ShaderProgram(gl) {
+        this.gl = gl;
+
+        if (this.vertex_shader_source === undefined)
+            this.vertex_shader_source = getShaderSource("simple-vertex-shader");
+        if (this.fragment_shader_source === undefined)
+            this.fragment_shader_source = getShaderSource("simple-fragment-shader");
+
+        var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vertexShader, this.vertex_shader_source);
+        gl.compileShader(vertexShader);
+        if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+            console.error("Could not compile vertex shader: " + gl.getShaderInfoLog(vertexShader));
+            return;
+        }
+
+        var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragmentShader, this.fragment_shader_source);
+        gl.compileShader(fragmentShader);
+        if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+            console.error("Could not compile fragment shader: " + gl.getShaderInfoLog(fragmentShader));
+            return;
+        }
+
+        this.program = gl.createProgram();
+        gl.attachShader(this.program, vertexShader);
+        gl.attachShader(this.program, fragmentShader);
+        gl.linkProgram(this.program);
+
+        if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+            alert("Could not link shader:" + gl.getProgramInfoLog(this.program));
+            return;
+        }
+
+        gl.useProgram(this.program);
+        this.vertexLocation = gl.getAttribLocation(this.program, "a_vertex");
+        this.matrixLocation = gl.getUniformLocation(this.program, "u_matrix");
+        this.colorLocation = gl.getUniformLocation(this.program, "u_color");
+        return this;
+    }
+
+    function EdgeDistanceAAProgram(gl) {
+        this.fragment_shader_source = getShaderSource("aa-fragment-shader");
+        EdgeDistanceAAProgram.baseConstructor.call(this, gl);
+
+        this.expandedQuadEdgesInScreenSpaceLocation = gl.getUniformLocation(this.program, "u_expandedQuadEdgesInScreenSpace");
+
+        return this;
+    }
+    extend(EdgeDistanceAAProgram, ShaderProgram);
+
+    function viewportMatrix(gl)
+    {
+        var viewport = gl.getParameter(gl.VIEWPORT);
+
+        var matrix = new TransformationMatrix();
+        matrix.translate(viewport[0], viewport[1]);
+        matrix.scale(viewport[2], viewport[3]);
+
+        // Map x, y and z to unit square from OpenGL normalized device coordinates which are -1 to 1 on every axis.
+        matrix.translate3d(0.5, 0.5, 0.5);
+        matrix.scale3d(0.5, 0.5, 0.5);
+
+        return matrix;
+    }
+
+    function FloatSize(point1, point2) {
+        this.vector = [point2[0] - point1[0], point2[1] - point1[1]];
+
+        this.width = function() { return this.vector[0]; }
+        this.height = function() { return this.vector[1]; }
+
+        this.lengthSquared = function() {
+            return this.vector[0] * this.vector[0] + this.vector[1] * this.vector[1];
+        }
+
+        this.length = function()  {
+            return Math.sqrt(this.lengthSquared());
+        }
+
+        this.scale = function(newScale) {
+            this.vector[0] *= newScale;
+            this.vector[1] *= newScale;
+        }
+
+        return this;
+    }
+
+    function scaleLineEquationCoeffecientsToOptimizeDistanceCalculation(coeffecients)
+    {
+        // In the fragment shader we want to calculate the distance from this
+        // line to a point (p), which is given by the formula:
+        // (A*p.x + B*p.y + C) / sqrt (a^2 + b^2)
+        // We can do a small amount of precalculation here to reduce the
+        // amount of math in the shader by scaling the coeffecients now.
+        var vector = new FloatSize([0, 0], coeffecients);
+        var scale = 1.0 / vector.length();
+        coeffecients[0] = coeffecients[0] * scale;
+        coeffecients[1] = coeffecients[1] * scale;
+        coeffecients[2] = coeffecients[2] * scale;
+    }
+
+    function getStandardEquationCoeffecientsForLine(p1, p2)
+    {
+        // Given two points, the standard equation of a line (Ax + By + C = 0)
+        // can be calculated via the formula:
+        // (p1.y – p2.y)x + (p2.x – p1.x)y + ((p1.x*p2.y) – (p2.x*p1.y)) = 0
+        var coeffecients = [];
+        coeffecients = coeffecients.concat(p1[1] - p2[1]);
+        coeffecients = coeffecients.concat(p2[0] - p1[0]);
+        coeffecients = coeffecients.concat(p1[0] * p2[1] - p2[0] * p1[1]);
+        scaleLineEquationCoeffecientsToOptimizeDistanceCalculation(coeffecients);
+        return coeffecients;
+    }
+
+    function quadToEdgeArray(quad)
+    {
+        var edgeArray = [];
+        if (quad.isCounterclockwise()) {
+            edgeArray = edgeArray.concat(getStandardEquationCoeffecientsForLine(quad.p4(), quad.p3()));
+            edgeArray = edgeArray.concat(getStandardEquationCoeffecientsForLine(quad.p3(), quad.p2()));
+            edgeArray = edgeArray.concat(getStandardEquationCoeffecientsForLine(quad.p2(), quad.p1()));
+            edgeArray = edgeArray.concat(getStandardEquationCoeffecientsForLine(quad.p1(), quad.p4()));
+            return edgeArray;
+        }
+        edgeArray = edgeArray.concat(getStandardEquationCoeffecientsForLine(quad.p4(), quad.p1()));
+        edgeArray = edgeArray.concat(getStandardEquationCoeffecientsForLine(quad.p1(), quad.p2()));
+        edgeArray = edgeArray.concat(getStandardEquationCoeffecientsForLine(quad.p2(), quad.p3()));
+        edgeArray = edgeArray.concat(getStandardEquationCoeffecientsForLine(quad.p3(), quad.p4()));
+        return edgeArray;
+    }
+
+    function scaledVectorDifference(point1, point2, scale)
+    {
+        var vector = new FloatSize(point2, point1);
+        var length = vector.length();
+        if (length !== 0)
+            vector.scale(1.0 / length);
+
+        vector.scale(scale);
+        return vector;
+    }
+
+    function inflateQuad(quad, distance)
+    {
+        var expandedQuad = quad.clone();
+
+        function addPoint(point, size) {
+            return [point[0] + size.width(), point[1] + size.height()];
+        }
+
+        expandedQuad.setP1(addPoint(expandedQuad.p1(), scaledVectorDifference(quad.p1(), quad.p2(), distance)));
+        expandedQuad.setP4(addPoint(expandedQuad.p4(), scaledVectorDifference(quad.p4(), quad.p3(), distance)));
+
+        expandedQuad.setP1(addPoint(expandedQuad.p1(), scaledVectorDifference(quad.p1(), quad.p4(), distance)));
+        expandedQuad.setP2(addPoint(expandedQuad.p2(), scaledVectorDifference(quad.p2(), quad.p3(), distance)));
+
+        expandedQuad.setP2(addPoint(expandedQuad.p2(), scaledVectorDifference(quad.p2(), quad.p1(), distance)));
+        expandedQuad.setP3(addPoint(expandedQuad.p3(), scaledVectorDifference(quad.p3(), quad.p4(), distance)));
+
+        expandedQuad.setP3(addPoint(expandedQuad.p3(), scaledVectorDifference(quad.p3(), quad.p2(), distance)));
+        expandedQuad.setP4(addPoint(expandedQuad.p4(), scaledVectorDifference(quad.p4(), quad.p1(), distance)));
+
+        return expandedQuad;
+    }
+
+    function WebGLScene(id) {
+        this.drawQuad = function(quad, program, projection, vertices) {
+            if (vertices === undefined)
+                vertices = [ 0, 0, 1, 0, 1, 1, 0, 1 ];
+
+            var gl = this.gl;
+            var matrix = projection.multiply(quad.currentTransform);
+            matrix.translate(quad.x, quad.y)
+            matrix.scale(quad.width, quad.height);
+            gl.uniformMatrix4fv(program.matrixLocation, false, matrix.matrix);
+
+            gl.uniform3f(program.colorLocation, 0, 0, 0);
+
+            gl.enableVertexAttribArray(this.vertexLocation);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+            gl.vertexAttribPointer(program.vertexLocation, 2, gl.FLOAT, false, 0, 0);
+
+            gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+        }
+
+        this.drawQuadWithAntialiasing = function(quad, program, projection) {
+            var screenSpaceTransform = viewportMatrix(this.gl).multiply(projection).multiply(quad.currentTransform).to2dTransform();
+            if (!screenSpaceTransform.isInvertible())
+                return ;
+
+            var originalTargetRect = new FloatQuad(quad.x, quad.y, quad.width, quad.height);
+            var quadInScreenSpace = screenSpaceTransform.mapQuad(originalTargetRect);
+            var expandedQuadInScreenSpace = inflateQuad(quadInScreenSpace, 0.5);
+
+            var edgeArray = quadToEdgeArray(expandedQuadInScreenSpace);
+            edgeArray = edgeArray.concat(quadToEdgeArray(expandedQuadInScreenSpace.boundingBox()));
+            gl.uniform3fv(program.expandedQuadEdgesInScreenSpaceLocation, edgeArray);
+
+            var expandedQuadInTextureCoordinates = screenSpaceTransform.inverse().mapQuad(expandedQuadInScreenSpace);
+            expandedQuadInTextureCoordinates.move(-quad.x, -quad.y);
+            expandedQuadInTextureCoordinates.scale(1 / quad.width, 1 / quad.height);
+
+            var points = expandedQuadInTextureCoordinates.points;
+            points = points[0].concat(points[1]).concat(points[2]).concat(points[3]);
+
+            this.drawQuad(quad, program, projection, points);
+        }
+
+        this.draw = function() {
+            var projection = TransformationMatrix.orthographicProjection(this.width, this.height);
+
+            for (var i = 0; i < quads.length; i++)
+                quads[i].updateAnimation(quads[i]._lastAnimationUpdate + 0.005);
+
+            this.gl.clearColor(1.0, 1.0, 1.0, 1.0);
+            this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+            gl.enable(gl.SCISSOR_TEST);
+
+            gl.scissor(this.width / 2, 0, this.width / 2, this.height);
+            gl.useProgram(this.aaShader.program);
+            for (var i = 0; i < quads.length; i++)
+                this.drawQuadWithAntialiasing(quads[i], this.aaShader, projection);
+
+            gl.scissor(0, 0, this.width / 2, this.height);
+            gl.useProgram(this.simpleShader.program);
+            for (var i = 0; i < quads.length; i++)
+                this.drawQuad(quads[i], this.simpleShader, projection);
+
+            setTimeout(function() { this.draw() }, 5);
+        }
+
+        var canvas = document.getElementById(id);
+        try {
+            this.gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        } catch (exception) {
+            console.error("Could not instantiate WebGL context.");
+            return;
+        }
+
+        this.width = canvas.width;
+        this.height = canvas.height;
+        gl.viewport(0, 0, this.width, this.height);
+        gl.enable(gl.BLEND);
+
+        this.quads = [];
+
+        var quadSize = 33;
+        var quadPadding = quadSize / 2;
+
+        var currentXOffset = quadPadding / 2;;
+        while (currentXOffset < this.width) {
+            var currentYOffset = quadPadding / 2; 
+
+            while (currentYOffset <= this.height) {
+                var quad = new DrawQuad(currentXOffset, currentYOffset, quadSize, quadSize);
+                quad.setRotationAnimation([0, 0, 1], 10);
+                this.quads = quads.concat(quad);
+                currentYOffset += quadSize + quadPadding;
+            }
+
+            currentXOffset += quadSize + quadPadding;
+        }
+
+        this.simpleShader = new ShaderProgram(this.gl);
+        this.aaShader = new EdgeDistanceAAProgram(this.gl);
+
+        this.vertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+
+        return this;
+    }
+
+    var scene;
+    function start() {
+        scene = WebGLScene("scene-canvas");
+        scene.draw();
+    }
+    </script>
+  </head>
+
+<body onload="start();">
+    <canvas id="scene-canvas" style="border: solid 10px;" width="200" height="200"></canvas>
+</body>
+
+</html>

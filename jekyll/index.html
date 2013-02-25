@@ -1,0 +1,11 @@
+---
+layout: standard-page
+---
+<table>
+{% for post in site.posts %}
+    <tr>
+        <td class="date" style="text-align: right;">{{ post.date | date: "%d %B %Y" }} &mdash;</td>
+        <td><a href="/blog/{{ post.url }}">{{ post.title }}</a></td>
+    </tr>
+{% endfor %}
+</table>

@@ -1,0 +1,64 @@
+body {
+    font-family: Ubuntu,Helvetica,Arial,sans-serif;
+    margin: 0px;
+}
+
+.header {
+    margin-left: 1ex;
+}
+
+.title {
+    float: left;
+}
+
+.title h1 {
+    font-family: 'Oleo Script Swash Caps', serif;
+    margin-bottom: 0px;
+    margin-top: 10px;
+}
+
+.title p {
+    margin-top: 0px;
+}
+
+hr {
+    height: 0px;
+    border: none;
+    border-bottom: 1px dashed rgba(200, 200, 200, 0.8);
+}
+
+a {
+    text-decoration-style: dashed;
+}
+
+.content {
+    margin-top: 2ex;
+    margin-left: 5ex;
+    max-width: 90ex;
+    text-align: justify;
+}
+
+.content img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.content-header h2 {
+    margin-bottom: 0px;
+}
+
+.content-header {
+    margin-bottom: 2ex;
+}
+
+.footnotes {
+    margin-top: 10ex;
+    color: rgb(180, 180, 180);
+}
+
+.date {
+    margin-top: 0px;
+    color: rgb(180, 180, 180);
+}
+

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8"/>
+    <title>{% if page.title %} {{ page.title }} | {% endif %} abandonedwig</title>
+    <link href='http://fonts.googleapis.com/css?family=Oleo+Script+Swash+Caps:700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:300' rel='stylesheet' type='text/css'>
+    <link href='/style.css' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+    <div class="header">
+        <img style="float:left; margin-right: 20px;" src="/img/woohoo.png"/>
+        <div class="title">
+            <h1>Abandoned Wig</h1>
+            <p class="blurb">
+                Hi, I'm Martin. I work on <a href="http://webkit.org">WebKit</a>, 
+                <a href="http://gnome.org">Gnome</a>, and <a href="http://cairographics.org">Cairo</a>
+                for <a href="http://igalia.com">Igalia</a>. <br/>
+                I speed the arrival of kitten pictures to your personal computation device.
+            </p>
+            <p>
+                {% if page.url != '/index.html' %}
+                <a href="/index.html">&#8604; back to the index</a> /
+                {% endif %}
+                <a href="http://twitter.com/abandonedwig">twitter</a> /
+                <a href="https://github.com/mrobinson?tab=repositories">github</a>
+            </p>
+        </div>
+    </div>
+
+    <hr style="clear:both;"/>
+
+    <div class="content">
+        {{ content }}
+    </div>
+
+</body>
+
