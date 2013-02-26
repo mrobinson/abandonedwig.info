@@ -62,3 +62,12 @@ a {
     color: rgb(180, 180, 180);
 }
 
+.mistake a {
+    color: rgb(210, 210, 210);
+}
+
+.mistake {
+    float: right;
+    font-style: italic;
+}
+
