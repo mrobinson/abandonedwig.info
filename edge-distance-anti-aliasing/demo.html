@@ -383,8 +383,9 @@
         }
 
         var canvas = document.getElementById(id);
+        var attributes = { 'antialias': false };
         try {
-            this.gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            this.gl = canvas.getContext("webgl", attributes) || canvas.getContext("experimental-webgl", attributes);
         } catch (exception) {
             console.error("Could not instantiate WebGL context.");
             return;
