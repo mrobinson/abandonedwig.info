@@ -1,3 +1,4 @@
 blog
 *.swp
 *.swo
+*.pyc
