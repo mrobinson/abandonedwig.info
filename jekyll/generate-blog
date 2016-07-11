@@ -1,2 +1,2 @@
 #!/bin/sh
-jekyll . ../blog
+jekyll build --destination ../blog
