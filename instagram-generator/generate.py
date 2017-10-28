@@ -59,7 +59,7 @@ for entry in data:
         run_command("cp {}/{} {}".format(DATA_DIR, image, photos_dir))
 
     object = {
-        'layout': 'photos',
+        'layout': 'post',
         'title': caption,
         'date': date_string,
         'comments': 'false',
@@ -72,3 +72,14 @@ for entry in data:
         post_file.write("---\n")
         post_file.write(yaml.dump(object, default_flow_style=False))
         post_file.write("---\n")
+
+        for iamge in images:
+            post_file.write('<div class="photo">\n')
+            if image.find(".mp4") != -1:
+                post_file.write("  <video controls>\n")
+                post_file.write('    <source src="{{ page.images_dir }}/' + image + '" type="video/mp4">\n')
+                post_file.write('    Your browser does not support the video tag.\n')
+                post_file.write('  </video>\n')
+            else:
+                post_file.write('  <img src="{{ page.images_dir }}/' + image + '"/>\n')
+            post_file.write('</div>')
