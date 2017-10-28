@@ -10,7 +10,7 @@ module Jekyll
         basename = Pathname.new(@path).basename
         data['filename'] = basename.to_s
         data['basename_no_ext'] = basename.sub_ext('').to_s
-        data['images_dir'] = "/images/" + data['basename_no_ext']
+        data['images_dir'] = "/images/photos/" + data['basename_no_ext']
         return data
       end
     end

@@ -1,0 +1,22 @@
+---
+layout: standard-page
+---
+<div class="content-header">
+    <h2>{{ page.title }}</h2>
+    <div class="date">{{ page.date | date: "%d %B %Y" }}</div>
+    <div style="margin-top: 3ex;">
+{% for photo in page.photos %}
+        <div class="photo">
+    {% if photo.url contains ".mp4" %}
+            <video controls>
+                <source src="{{ page.images_dir }}/{{ photo.url }}" type="video/mp4">
+                 Your browser does not support the video tag.
+            </video>
+    {% else %}
+            <img src="{{ page.images_dir }}/{{ photo.url }}"/>
+    {% endif %}
+            <figcaption>{{ photo.caption }}</figcaption>
+        </div>
+{% endfor %}
+    </div>
+</div>

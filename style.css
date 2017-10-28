@@ -71,3 +71,6 @@ a {
     font-style: italic;
 }
 
+.photo:not(:first-child) {
+    margin-top: 2em;
+}

@@ -6,3 +6,8 @@ order allow,deny
 deny from all
 </FILES>
 
+<FILES instagram-generator>
+order allow,deny
+deny from all
+</FILES>
+
