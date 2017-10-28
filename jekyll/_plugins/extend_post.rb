@@ -7,7 +7,10 @@ module Jekyll
 
       def to_liquid
         data = original_to_liquid
-        data['filename'] = Pathname.new(@path).basename.to_s
+        basename = Pathname.new(@path).basename
+        data['filename'] = basename.to_s
+        data['basename_no_ext'] = basename.sub_ext('').to_s
+        data['images_dir'] = "/images/" + data['basename_no_ext']
         return data
       end
     end
