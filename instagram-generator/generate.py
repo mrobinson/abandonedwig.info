@@ -45,6 +45,8 @@ for entry in data:
         caption = "Untitled photo"
 
     images = [get_filename(url) for url in entry['urls']]
+    print(str(entry['urls']))
+    print(str(images))
 
     post_file = date_string + "-" + \
         caption.replace(" ", "-") \
@@ -64,7 +66,6 @@ for entry in data:
         'date': date_string,
         'comments': 'false',
         'tags': 'Photos',
-        'photos': [{'url': image, 'caption': ''} for image in images],
     }
 
     post_filename = '{}/{}.html'.format(POSTS_PATH, post_file)
@@ -73,7 +74,7 @@ for entry in data:
         post_file.write(yaml.dump(object, default_flow_style=False))
         post_file.write("---\n")
 
-        for iamge in images:
+        for image in images:
             post_file.write('<div class="photo">\n')
             if image.find(".mp4") != -1:
                 post_file.write("  <video controls>\n")
@@ -82,4 +83,4 @@ for entry in data:
                 post_file.write('  </video>\n')
             else:
                 post_file.write('  <img src="{{ page.images_dir }}/' + image + '"/>\n')
-            post_file.write('</div>')
+            post_file.write('</div>\n')
