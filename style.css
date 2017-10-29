@@ -71,6 +71,15 @@ a {
     font-style: italic;
 }
 
+.photo {
+    max-width: 85ex;
+    margin: 0 auto;
+}
+
+.photo img {
+    max-width: 85ex;
+}
+
 .photo:not(:first-child) {
     margin-top: 2em;
 }
