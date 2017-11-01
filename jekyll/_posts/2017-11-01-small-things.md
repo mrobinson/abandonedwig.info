@@ -6,21 +6,21 @@ comments: false
 tags: Igalia
 ---
 
-Even between two highly-developed western countries, there are a lot of cultural
-differences.  After moving, I experienced the sort of culture shock that the
-Internet warns you about. Thankfully, the passage of time means that grumbling
-noon-time stomachs gradually give way to curiously peckish 2:30pm lunches.
-Instead of sitting in dread, willing your useless, polite American hands to flag
-a waiter, you manage to order a tiny beer using only your eyeballs. Big
-differences start to fade into the background so much that maybe you start to
-keep a list of them, just to avoid the feeling that you are forgetting some
+Even between two highly-developed western countries, there are a lot of
+cultural differences.  After moving, I experienced the sort of culture shock
+that the Internet warns you about. Thankfully, the passage of time means that
+grumbling noon-time stomachs gradually give way to curiously peckish 2:30pm
+lunches.  Instead of sitting in dread, willing your useless, polite American
+hands to flag a waiter, you manage to order a tiny beer using only your
+eyeballs. Big differences fade into the background so much that maybe you start
+to keep a list of them, just to avoid the feeling that you are forgetting some
 original piece of yourself.
 
-This new familiarity starts to expose the incredibly long tail of subtle
+This new familiarity begins to expose the incredibly long tail of subtle
 differences that have been hanging out quietly in the background. Unnamed
-onomatopoeias have a completely different sound. People are making gestures with
-their hands while they speak, and those gestures actually mean something very
-clear. Your brain calmly catalogs these curiosities as they become too
+onomatopoeias have a completely different sound. People are making gestures
+with their hands while they speak, and those gestures actually mean something
+very clear. Your brain calmly catalogs these curiosities as they become too
 trivial to comment on.
 
 If you are like me, you stare at the street, the stoplights, and the sidewalks.
