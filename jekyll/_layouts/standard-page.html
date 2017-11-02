@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <title>{% if page.title %} {{ page.title }} | {% endif %} {{ site.name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href='https://fonts.googleapis.com/css?family=Oleo+Script+Swash+Caps:700' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Ubuntu:100' rel='stylesheet' type='text/css'>
     <link href='/style.css' rel='stylesheet' type='text/css'>
@@ -13,24 +14,23 @@
 
 <body>
     <div class="header">
-        <img style="float:left; margin-right: 20px;" src="/images/woohoo.png"/>
+        <img class="title-img" src="/images/woohoo.png"/>
         <div class="title">
             <h1>Abandoned Wig</h1>
             <p class="blurb">
-                Hi, I'm Martin. I help to build the Web Platform for <a href="http://igalia.com">Igalia</a>, <br/>
-                speeding the arrival of kitten pictures to your personal computation device.
+                Hi, I'm Martin.<br/>I work on the Web Platform at <a href="http://igalia.com">Igalia</a>.
             </p>
             <p>
                 {% if page.url != '/index.html' %}
                 <a href="/index.html">&#8604; back to the index</a> /
                 {% endif %}
                 <a href="http://twitter.com/abandonedwig">twitter</a> /
-                <a href="https://github.com/mrobinson?tab=repositories">github</a> /
+                <a href="https://github.com/mrobinson?tab=repositories">github</a>
             </p>
         </div>
+        <hr style="clear:both;"/>
     </div>
 
-    <hr style="clear:both;"/>
 
     <div class="content">
         {{ content }}

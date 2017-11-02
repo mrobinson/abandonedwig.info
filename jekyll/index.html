@@ -4,7 +4,11 @@ layout: standard-page
 <table>
 {% for post in site.posts %}
     <tr>
-        <td class="date" style="text-align: right;">{{ post.date | date: "%d %B %Y" }} &mdash;</td>
+        <td class="date" style="text-align: right;">
+            <span class="shortdate">{{ post.date | date: "%d %b %Y" }}</span>
+            <span class="longdate">{{ post.date | date: "%d %B %Y" }}</span>
+            &mdash;
+        </td>
         <td><a href="/blog/{{ post.url }}">{{ post.title }}</a></td>
     </tr>
 {% endfor %}
