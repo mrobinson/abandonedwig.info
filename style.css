@@ -10,7 +10,7 @@ body {
 .title-img {
     float: left;
     margin-right: 1ex;
-    max-width: 30%;
+    max-width: 30vw;
 }
 
 .title {
@@ -20,10 +20,16 @@ body {
 .title h1 {
     font-family: 'Oleo Script Swash Caps', serif;
     margin: 0;
+    font-size: 30pt;
 }
 
-.title p {
-    margin-top: 0px;
+.title .blurb {
+    margin-top: 0;
+}
+
+.title .nav {
+    margin-top: 3ex;
+    margin-bottom: 1ex;
 }
 
 hr {
@@ -45,7 +51,6 @@ a {
 
 .content .body {
     margin-top: 2ex;
-    text-align: justify;
 }
 
 .content img {
@@ -99,21 +104,13 @@ a {
     margin-top: 2em;
 }
 
-@media screen and (max-width: 400px) {
-    .title-img {
-        max-width: 20%;
+@media screen and (max-width: 500px) {
+    .title h1 {
+        font-size: 7.5vw;
     }
 
-    .h1 {
-        font-size: 18pt;
-    }
-
-    .h2 {
-        font-size: 15pt;
-    }
-
-    body {
-        font-size: 10pt;
+    .blurb, .nav {
+        font-size: 3vw;
     }
 }
 
