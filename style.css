@@ -17,10 +17,10 @@ body {
     float: left;
 }
 
-.title h1 {
+.title > span {
     font-family: 'Oleo Script Swash Caps', serif;
     margin: 0;
-    font-size: 30pt;
+    font-size: 20pt;
 }
 
 .title .blurb {
@@ -44,7 +44,7 @@ a {
 
 .content {
     margin-top: 1ex;
-    margin-left: 3ex;
+    margin-left: 5ex;
     margin-right: 3ex;
     max-width: 90ex;
 }
@@ -60,7 +60,7 @@ a {
     margin-right: auto;
 }
 
-.content-header h2 {
+.content-header h1 {
     margin-bottom: 0px;
 }
 
