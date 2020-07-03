@@ -32,18 +32,18 @@ def run_command(command_string):
 def get_caption(entry):
     try:
         return entry['caption']['text']
-    except KeyError:
+    except:
         pass
     try:
         return entry['edge_media_to_caption']['edges'][0]['node']['text']
-    except KeyError:
+    except:
         return "Untitled photo"
 
 
 def get_timestamp(entry):
     try:
         return float(entry['created_time'])
-    except KeyError:
+    except:
         return float(entry['taken_at_timestamp'])
 
 
@@ -52,7 +52,7 @@ with open('{}/{}.json'.format(DATA_DIR, USER_NAME), 'r') as data_file:
 
 run_command("mkdir -p " + POSTS_PATH)
 
-for entry in data:
+for entry in data['GraphImages']:
     timestamp = get_timestamp(entry)
     date = datetime.datetime.utcfromtimestamp(timestamp)
     date_string = date.strftime("%Y-%m-%d")
