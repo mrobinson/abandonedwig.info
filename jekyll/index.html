@@ -9,7 +9,7 @@ layout: standard-page
             <span class="longdate">{{ post.date | date: "%d %B %Y" }}</span>
             &mdash;
         </td>
-        <td><a href="/blog/{{ post.url }}">{{ post.title }}</a></td>
+        <td><a href="/blog{{ post.url }}">{{ post.title }}</a></td>
     </tr>
 {% endfor %}
 </table>
