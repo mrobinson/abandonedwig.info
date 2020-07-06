@@ -15,6 +15,30 @@ We can construct a simple example showing that two divs overlap in this
 order. We overlap two divs by giving one of them a negative top margin.
 
 {% highlight html %}
+<style>
+    .box {
+        width: 8ex;
+        height: 8ex;
+        padding: 0.2ex;
+        color: white;
+        font-weight: bold;
+        text-align: right;
+    }
+
+    .blue { background: #99DDFF; }
+
+    /* The second div has a negative top margin so that it overlaps
+       with the first (blue) div. Also, shift it over to the right
+       slightly. */
+    .green {
+        background: #44BB99;
+        margin-left: 3ex;
+        margin-top: -6ex;
+     }
+</style>
+
+<div class="blue box">1</div>
+<div class="green box">2</div>
 {% endhighlight %}
 
 <style>
@@ -56,6 +80,20 @@ browser. We give the green div a `z-index` and make it relatively positioned,
 because `z-index` only works on positioned elements. We also add a yellow
 child of the green div to see how this affects children.
 
+{% highlight html %}
+<style>
+    .yellow {
+        margin-left: 3ex;
+        background: #EEDD88;
+    }
+</style>
+
+<div class="blue box">1</div>
+<div class="green box" style="position: relative; z-index: -1;">2
+    <div class="yellow box">3</div>
+</div>
+{% endhighlight %}
+
 <style>
     .yellow {
         margin-left: 3ex;
@@ -75,11 +113,9 @@ itself and also the yellow child div.  What if we want to now paint the yellow
 nested child on top of everything by giving it a large positive `z-index`?
 
 {% highlight html %}
-<div class="example">
-    <div class="blue box">1</div>
-    <div class="green box" style="position: relative; z-index: -1;">2
-        <div class="yellow box" style="position: relative; z-index: 1000;">3</div>
-    </div>
+<div class="blue box">1</div>
+<div class="green box" style="position: relative; z-index: -1;">2
+    <div class="yellow box" style="position: relative; z-index: 1000;">3</div>
 </div>
 {% endhighlight %}
 
@@ -89,7 +125,6 @@ nested child on top of everything by giving it a large positive `z-index`?
         <div class="yellow box" style="position: relative; z-index: 1000;">3</div>
     </div>
 </div>
-
 
 Wait! What's going on here? The blue div has no `z-index` specified, which
 should mean that the value used for its `z-index` is zero. The `z-index` of our
@@ -127,6 +162,9 @@ is that we must remove it from the stacking context created by the second
 element.
 
 {% highlight html %}
+<div class="blue box">1</div>
+<div class="yellow box" style="position: relative; z-index: 1000; margin-top: -5ex">2</div>
+<div class="green box" style="position: relative; z-index: -1; margin-left: 6ex;">3</div>
 {% endhighlight %}
 
 <div class="example">
@@ -171,12 +209,14 @@ takes is a little bit of work to see this in action:
 <style>
     .scroll-area {
         overflow: scroll;
+        border: 3px solid salmon;
         width: 18ex;
         height: 15ex;
         margin-left: 2ex;
     }
 
     .scroll-area .vertical-bar {
+        position: relative; /* We give each bar position: relative so that they can have z-indices. */
         float: left;
         height: 50ex;
         width: 4ex;
@@ -191,7 +231,6 @@ takes is a little bit of work to see this in action:
 
     /* Even bars will be on top of the yellow vertical bar due to having a greater z-index. */
     .scroll-area .vertical-bar:nth-child(even) {
-        position: relative; /* This allows for an active z-index. */
         z-index: 4;
         opacity: 0.9;
     }
@@ -208,18 +247,16 @@ takes is a little bit of work to see this in action:
     }
 </style>
 
-<div class="example">
-    <!-- A scroll area with four vertical bars. -->
-    <div class="scroll-area">
-        <div class="vertical-bar"></div>
-        <div class="vertical-bar"></div>
-        <div class="vertical-bar"></div>
-        <div class="vertical-bar"></div>
-    </div>
-
-    <!-- A div that will thread in between the vertical bars of the scroll area above. -->
-    <div class="yellow-vertical-bar">~~JUST PASSING THROUGH~~</div>
+<!-- A scroll area with four vertical bars. -->
+<div class="scroll-area">
+    <div class="vertical-bar"></div>
+    <div class="vertical-bar"></div>
+    <div class="vertical-bar"></div>
+    <div class="vertical-bar"></div>
 </div>
+
+<!-- A div that will thread in between the vertical bars of the scroll area above. -->
+<div class="yellow-vertical-bar">~~JUST PASSING THROUGH~~</div>
 {% endhighlight %}
 
 <style>
@@ -301,7 +338,7 @@ opted for maximizing long-term *web compatibility.*
 
 ## Breaking the Rules
 
-Earlier I wrote that nothing from the outside a stacking context can be
+Earlier, I wrote that nothing from the outside a stacking context can be
 painted in between a stacking context's contents. Is that really, really,
 really true though? CSS is so huge, there must be at least one exception,
 right? I now have a concrete answer to this question and that answer is
@@ -314,136 +351,80 @@ snazzy flipbook effects and also requiring web browsers to gradually become
 full 3D compositors. Surely if its possible to break this rule we can do it
 with 3D CSS transformations.
 
+Let's take a modified version of one of our examples above. Here we have
+three boxes. The last two are inside of a div with a `z-index` of -2, which
+means that they are both inside a single stacking context that stacks
+underneath the first box.
+
 {% highlight html %}
 <style>
-    .transform {
-        transform-style: preserve-3d;
-        perspective: 500px;
-    }
-
-    .transform div {
-       text-align: left;
-       width: 10ex;
-       height: 10ex;
-    }
-
-    .transform div.blue {
-        position: relative;
-        left: 5ex;
-        top: 2.5ex;
-        opacity: 0.9;
-        transform: rotateY(1deg);
-    }
-
-    .transform .green {
-        position: relative;
-        top: -2.5ex;
-        transform: rotateY(2deg);
-    }
-
-    .transform div.c {
-        position: relative;
-        left: 10ex;
-        top: -12.5ex;
-    }
-
-    .transform div span.bottom {
-       position: absolute;
-       bottom: 0;
-    }
-
-    .transform div span.right {
-       position: absolute;
-       right: 0;
+    .salmon {
+        background: salmon;
+        margin-top: -5ex;
+        margin-left: 4ex;
     }
 </style>
 
-<div class="transform" style="transform-style: preserve-3d; perspective: 500px;">
-    <div class="box blue" style="z-index: 2;">z-index: 2</div>
-    <div style="position: relative; z-index: -2;">
-        <div class="box green">
-            <span class="bottom">z-index: -2</span>
-        </div>
-        <div class="box c">
-            <span class="bottom">z-index: -2</span>
-        </div>
-    </div>
+<div class="blue box">0</div>
+<div style="position: relative; z-index: -2;">
+    <div class="green box">-2</div>
+    <div class="salmon box">-2</div>
 </div>
-
 {% endhighlight %}
 
 <style>
-    .transform {
-        transform-style: preserve-3d;
-        perspective: 500px;
-    }
-
-    .transform div {
-       text-align: left;
-       width: 10ex;
-       height: 10ex;
-    }
-
-    .transform div.blue {
-        position: relative;
-        left: 5ex;
-        top: 2.5ex;
-        opacity: 0.9;
-        transform: rotateY(1deg) ;
-    }
-
-    .transform .green {
-        position: relative;
-        top: -2.5ex;
-        transform: rotateY(2deg)
-    }
-
-    .transform div.c {
-        position: relative;
-        left: 10ex;
-        top: -12.5ex;
-    }
-
-    .transform div span.bottom {
-       position: absolute;
-       bottom: 0;
-    }
-
-    .transform div span.right {
-       position: absolute;
-       right: 0;
+    .salmon {
+        background: salmon;
+        margin-top: -5ex;
+        margin-left: 4ex;
     }
 </style>
 
-<div class="transform example" style="transform-style: preserve-3d; perspective: 500px;">
-    <div class="box a" style="z-index: 2;">z-index: 2</div>
+<div class="example">
+    <div class="blue box">0</div>
     <div style="position: relative; z-index: -2;">
-        <div class="box green">
-            <span class="bottom">z-index: -2</span>
-        </div>
-        <div class="box c">
-            <span class="bottom">z-index: -2</span>
-        </div>
+        <div class="green box">-2</div>
+        <div class="salmon box">-2</div>
     </div>
 </div>
 
+Now we make two modifications to this example. First, we wrap the example
+in a new div which sets sets a `transform-style` of `preserve-3d`, which
+will position all children in 3d space. Finally, we push one of the divs
+with `z-index` of -2 out of the screen using a 3d translation.
 
-This was a little complicated, but to summarize: a transformation slightly
-rotates some of these stacked elements along the y-axis. The final
-rendering depends one how your browser implements *plane-splitting*,
-but you might see the box with a `z-index` of 2 stack between the two elements
-inside of a stacking context with a `z-index` of -2. We broke the cardinal
-rule of the stacking context! Take that architects of the web!
+{% highlight html %}
+<div style="transform-style: preserve-3d;">
+    <div class="blue box">0</div>
+    <div style="position: relative; z-index: -2;">
+        <div class="green box">-2</div>
+        <div class="salmon box" style="transform: translate3d(0, 0, 50px);">-2</div>
+    </div>
+</div>
+{% endhighlight %}
 
-Is this exercise useful at all? Almost certainly not. I hope it
-was sufficiently weird though!
+<div class="example" style="transform-style: preserve-3d;">
+    <div class="blue box">0</div>
+    <div style="position: relative; z-index: -2;">
+        <div class="green box">-2</div>
+        <div class="salmon box" style="transform: translate3d(0, 0, 50px);">-2</div>
+    </div>
+</div>
+
+It's possible that your browser might not render this in the same way, but in
+Chrome the div with `z-index` zero is rendered in between two divs within the same
+stacking context both with `z-index` of -2.
+
+We broke the cardinal rule of the stacking context. Take that architects of the
+web! Is this exercise useful at all? Almost certainly not. I hope it was
+sufficiently weird though!
 
 ## Conclusion
 
-Hopefully I'll be back soon to talk about the implementation of this
-wonderful nonsense in [Servo](https://servo.org). I want to thank Mozilla
-for allowing me to hack on this as part of my work for
-[Igalia](https://igalia.com). Servo is a really great way to get involved
-in browser development. It's also written in Rust, which is a language that
-can help you become a better programmer simply by learning it, so check it
-out. Thanks for reading!
+Hopefully I'll be back soon to talk about the implementation of this wonderful
+nonsense in [Servo](https://servo.org). I want to thank [Frédéric
+Wang](http://frederic-wang.fr/) for input on this post and also Mozilla for
+allowing me to hack on this as part of my work for [Igalia](https://igalia.com).
+Servo is a really great way to get involved in browser development. It's also
+written in Rust, which is a language that can help you become a better
+programmer simply by learning it, so check it out.  Thanks for reading!
