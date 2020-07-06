@@ -145,7 +145,7 @@ description of Stacking Contexts](https://drafts.csswg.org/css2/zindex.html).
 Thankfully, we made a stupidly big cup of coffee since all the good information
 is apparently stuffed in the appendices. Appendix E gives us a peak at the
 algorithm that browsers use to determine the painting order of content on the
-page, including what sorts of properties that affect this painting order.  It
+page, including what sorts of properties affect this painting order.  It
 turns out that our early guesses were mostly correct, things generally stack
 according to the order in the DOM and active z-indices.  Sometimes though,
 certain CSS properties applied to elements trigger the creation of a stacking
