@@ -69,8 +69,8 @@ order. We overlap two divs by giving one of them a negative top margin.
 </style>
 
 <div class="example">
-    <div class="blue box">1</div>
-    <div class="green box">2</div>
+    <div class="blue box"></div>
+    <div class="green box"></div>
 </div>
 
 It seems that our guess was a pretty good guess! I'm sure some of you
@@ -78,7 +78,8 @@ are saying, "Hold on! What about `z-index`?" You're right. Using the
 `z-index` property, we can override the normal painting order used by the
 browser. We give the green div a `z-index` and make it relatively positioned,
 because `z-index` only works on positioned elements. We also add a yellow
-child of the green div to see how this affects children.
+child of the green div to see how this affects children. Finally, let's
+start labeling each div with its z-index.
 
 {% highlight html %}
 <style>
@@ -88,9 +89,9 @@ child of the green div to see how this affects children.
     }
 </style>
 
-<div class="blue box">1</div>
-<div class="green box" style="position: relative; z-index: -1;">2
-    <div class="yellow box">3</div>
+<div class="blue box">0</div>
+<div class="green box" style="position: relative; z-index: -1;">-1
+    <div class="yellow box">-1</div>
 </div>
 {% endhighlight %}
 
@@ -101,9 +102,9 @@ child of the green div to see how this affects children.
     }
 </style>
 <div class="example">
-    <div class="blue box">1</div>
-    <div class="green box" style="position: relative; z-index: -1;">2
-        <div class="yellow box">3</div>
+    <div class="blue box">0</div>
+    <div class="green box" style="position: relative; z-index: -1;">-1
+        <div class="yellow box">-1</div>
     </div>
 </div>
 
@@ -113,16 +114,16 @@ itself and also the yellow child div.  What if we want to now paint the yellow
 nested child on top of everything by giving it a large positive `z-index`?
 
 {% highlight html %}
-<div class="blue box">1</div>
-<div class="green box" style="position: relative; z-index: -1;">2
-    <div class="yellow box" style="position: relative; z-index: 1000;">3</div>
+<div class="blue box">0</div>
+<div class="green box" style="position: relative; z-index: -1;">-1
+    <div class="yellow box" style="position: relative; z-index: 1000;">1000</div>
 </div>
 {% endhighlight %}
 
 <div class="example">
-    <div class="blue box">1</div>
-    <div class="green box" style="position: relative; z-index: -1;">2
-        <div class="yellow box" style="position: relative; z-index: 1000;">3</div>
+    <div class="blue box">0</div>
+    <div class="green box" style="position: relative; z-index: -1;">-1
+        <div class="yellow box" style="position: relative; z-index: 1000;">1000</div>
     </div>
 </div>
 
@@ -156,27 +157,27 @@ simply, it means that things inside a stacking context are painted
 together, as a unit, and that items outside the stacking content will never
 be painted between them. Having an active `z-index` is one of the
 situations in CSS which triggers the creation of a stacking context. Is
-there a way we can adjust our example above so that our the third element
+there a way we can adjust our example above so that the third element
 belongs to the same stacking context as the first two elements? The answer
 is that we must remove it from the stacking context created by the second
 element.
 
 {% highlight html %}
-<div class="blue box">1</div>
-<div class="yellow box" style="position: relative; z-index: 1000; margin-top: -5ex">2</div>
-<div class="green box" style="position: relative; z-index: -1; margin-left: 6ex;">3</div>
+<div class="blue box">0</div>
+<div class="yellow box" style="position: relative; z-index: 1000; margin-top: -5ex">1000</div>
+<div class="green box" style="position: relative; z-index: -1; margin-left: 6ex;">-1</div>
 {% endhighlight %}
 
 <div class="example">
-    <div class="blue box">1</div>
-    <div class="yellow box" style="position: relative; z-index: 1000; margin-top: -5ex">2</div>
-    <div class="green box" style="position: relative; z-index: -1; margin-left: 6ex;">3</div>
+    <div class="blue box">0</div>
+    <div class="yellow box" style="position: relative; z-index: 1000; margin-top: -5ex">1000</div>
+    <div class="green box" style="position: relative; z-index: -1; margin-left: 6ex;">-1</div>
 </div>
 
 Now the yellow div is a sibling of the blue and the green and is painted
-on top of both of them, even though it comes second in the source.
+on top of both of them, even though it now comes second in the source.
 
-It's clear that stacking contexts can impose strong limitations on the what
+It's clear that stacking contexts can impose strong limitations on the
 order our elements are painted, so it'd be great to know when we are triggering
 them. Whether or not a particular CSS feature triggers the creation of a new
 stacking context is defined with that feature, which means the information is
@@ -388,17 +389,17 @@ underneath the first box.
     </div>
 </div>
 
-Now we make two modifications to this example. First, we wrap the example
-in a new div which sets sets a `transform-style` of `preserve-3d`, which
-will position all children in 3d space. Finally, we push one of the divs
-with `z-index` of -2 out of the screen using a 3d translation.
+Now we make two modifications to this example. First, we wrap the example in a
+new div with a `transform-style` of `preserve-3d`, which will position all
+children in 3d space. Finally, we push one of the divs with `z-index` of -2 out
+of the screen using a 3d translation.
 
 {% highlight html %}
 <div style="transform-style: preserve-3d;">
     <div class="blue box">0</div>
     <div style="position: relative; z-index: -2;">
         <div class="green box">-2</div>
-        <div class="salmon box" style="transform: translate3d(0, 0, 50px);">-2</div>
+        <div class="salmon box" style="transform: translateZ(50px);">-2</div>
     </div>
 </div>
 {% endhighlight %}
@@ -407,12 +408,12 @@ with `z-index` of -2 out of the screen using a 3d translation.
     <div class="blue box">0</div>
     <div style="position: relative; z-index: -2;">
         <div class="green box">-2</div>
-        <div class="salmon box" style="transform: translate3d(0, 0, 50px);">-2</div>
+        <div class="salmon box" style="transform: translateZ(50px);">-2</div>
     </div>
 </div>
 
 It's possible that your browser might not render this in the same way, but in
-Chrome the div with `z-index` zero is rendered in between two divs within the same
+Chrome the div with `z-index` of 0 is rendered in between two divs within the same
 stacking context both with `z-index` of -2.
 
 We broke the cardinal rule of the stacking context. Take that architects of the
