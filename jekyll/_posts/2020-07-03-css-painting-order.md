@@ -236,13 +236,13 @@ takes is a little bit of work to see this in action:
         opacity: 0.9;
     }
 
-    .yellow-vertical-bar {
+    .yellow-horizontal-bar {
         margin-top: -10ex;
         margin-bottom: 10ex;
         max-width: 30ex;
         background: #EEDD88;
 
-        /* Raise the vertical bar above the scrollbar of the scrolling area. */
+        /* Raise the horizontal bar above the scrollbar of the scrolling area. */
         position: relative;
         z-index: 2;
     }
@@ -257,7 +257,7 @@ takes is a little bit of work to see this in action:
 </div>
 
 <!-- A div that will thread in between the vertical bars of the scroll area above. -->
-<div class="yellow-vertical-bar">~~JUST PASSING THROUGH~~</div>
+<div class="yellow-horizontal-bar">~~JUST PASSING THROUGH~~</div>
 {% endhighlight %}
 
 <style>
