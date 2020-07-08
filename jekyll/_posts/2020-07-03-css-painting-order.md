@@ -3,7 +3,7 @@ layout: post
 title: CSS Painting Order
 date: 2020-07-03
 comments: false
-tags: Igalia, Servo
+tags: Igalia
 ---
 
 How does a browser determine what order to paint content in? A first
