@@ -1,0 +1,4 @@
+#!/bin/sh
+cd "$(dirname "$0")"
+jekyll build
+rsync -rv _site/ abandonedwig.info:abandonedwig.info/

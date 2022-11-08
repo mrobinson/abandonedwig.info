@@ -1,1 +1,15 @@
-blog/index.html
+---
+layout: standard-page
+---
+<table>
+{% for post in site.posts %}
+    <tr>
+        <td class="date" style="text-align: right;">
+            <span class="shortdate">{{ post.date | date: "%d %b %Y" }}</span>
+            <span class="longdate">{{ post.date | date: "%d %B %Y" }}</span>
+            &mdash;
+        </td>
+        <td><a href="{{ post.url }}">{{ post.title }}</a></td>
+    </tr>
+{% endfor %}
+</table>

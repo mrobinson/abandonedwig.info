@@ -1,13 +1,2 @@
 RewriteEngine on
 RewriteRule feeds/posts/default feed-redirect.php
-
-<FILES jekyll>
-order allow,deny
-deny from all
-</FILES>
-
-<FILES instagram-generator>
-order allow,deny
-deny from all
-</FILES>
-
